@@ -1,0 +1,61 @@
+kyrian@raspberrypi:~/Desktop/EECS750/hw6/IsolBench/bench $ git clone https://github.com/heechul/memguard
+Cloning into 'memguard'...
+remote: Enumerating objects: 540, done.
+remote: Counting objects: 100% (138/138), done.
+remote: Compressing objects: 100% (59/59), done.
+remote: Total 540 (delta 83), reused 131 (delta 79), pack-reused 402
+Receiving objects: 100% (540/540), 207.38 KiB | 2.09 MiB/s, done.
+Resolving deltas: 100% (335/335), done.
+[4]   Killed                  bandwidth -a write -c $c -t 1000
+[5]-  Killed                  bandwidth -a write -c $c -t 1000
+[6]+  Killed                  bandwidth -a write -c $c -t 1000
+kyrian@raspberrypi:~/Desktop/EECS750/hw6/IsolBench/bench $ cd memguard
+kyrian@raspberrypi:~/Desktop/EECS750/hw6/IsolBench/bench/memguard $ make
+make -C /lib/modules/6.6.21-v8+/build M=/home/kyrian/Desktop/EECS750/hw6/IsolBench/bench/memguard modules
+make[1]: Entering directory '/home/kyrian/Desktop/EECS750/hw6/linux'
+  CC [M]  /home/kyrian/Desktop/EECS750/hw6/IsolBench/bench/memguard/memguard.o
+  MODPOST /home/kyrian/Desktop/EECS750/hw6/IsolBench/bench/memguard/Module.symvers
+  CC [M]  /home/kyrian/Desktop/EECS750/hw6/IsolBench/bench/memguard/memguard.mod.o
+  LD [M]  /home/kyrian/Desktop/EECS750/hw6/IsolBench/bench/memguard/memguard.ko
+make[1]: Leaving directory '/home/kyrian/Desktop/EECS750/hw6/linux'
+kyrian@raspberrypi:~/Desktop/EECS750/hw6/IsolBench/bench/memguard $ sudo bash
+root@raspberrypi:/home/kyrian/Desktop/EECS750/hw6/IsolBench/bench/memguard# insmod ./memguard.ko
+root@raspberrypi:/home/kyrian/Desktop/EECS750/hw6/IsolBench/bench/memguard# pushd /sys/kernel/debug/memguard/
+/sys/kernel/debug/memguard /home/kyrian/Desktop/EECS750/hw6/IsolBench/bench/memguard
+root@raspberrypi:/sys/kernel/debug/memguard# ls
+control  read_limit  usage  write_limit
+root@raspberrypi:/sys/kernel/debug/memguard# cat read_limit
+cpu  |budget (MB/s)	 RT?
+-------------------------------
+CPU0: 16384 (1000MB/s)	 No
+CPU1: 16384 (1000MB/s)	 No
+CPU2: 16384 (1000MB/s)	 No
+CPU3: 16384 (1000MB/s)	 No
+root@raspberrypi:/sys/kernel/debug/memguard# echo mb 1000 100 100 100 > read_limit
+root@raspberrypi:/sys/kernel/debug/memguard# cat read_limit
+cpu  |budget (MB/s)	 RT?
+-------------------------------
+CPU0: 16384 (1000MB/s)	 No
+CPU1: 1638 (100MB/s)	 No
+CPU2: 1638 (100MB/s)	 No
+CPU3: 1638 (100MB/s)	 No
+root@raspberrypi:/sys/kernel/debug/memguard# echo mb 1000 100 100 100 > write_limit
+root@raspberrypi:/sys/kernel/debug/memguard# suspend
+
+[1]+  Stopped                 sudo bash
+kyrian@raspberrypi:~/Desktop/EECS750/hw6/IsolBench/bench/memguard $ bandwidth -a write -c 3
+assigned to cpu 3
+memsize=16384 KB, type=write, cpuid=3
+stop at 5
+g_nread(bytes read) = 520093696
+elapsed = 5.00 sec ( 5000150 usec )
+CPU3: B/W = 99.20 MB/s | CPU3: average = 615.29 ns
+kyrian@raspberrypi:~/Desktop/EECS750/hw6/IsolBench/bench/memguard $ bandwidth -a write -c 0
+assigned to cpu 0
+memsize=16384 KB, type=write, cpuid=0
+stop at 5
+g_nread(bytes read) = 5100273664
+elapsed = 5.00 sec ( 5000020 usec )
+CPU0: B/W = 972.80 MB/s | CPU0: average = 62.74 ns
+kyrian@raspberrypi:~/Desktop/EECS750/hw6/IsolBench/bench/memguard $ 
+

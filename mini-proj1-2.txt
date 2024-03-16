@@ -1,0 +1,69 @@
+kyrian@raspberrypi:~/Desktop/EECS750/hw6 $ git clone https://github.com/CSL-KU/IsolBench
+Cloning into 'IsolBench'...
+remote: Enumerating objects: 445, done.
+remote: Counting objects: 100% (181/181), done.
+remote: Compressing objects: 100% (123/123), done.
+remote: Total 445 (delta 91), reused 137 (delta 57), pack-reused 264
+Receiving objects: 100% (445/445), 325.72 KiB | 2.43 MiB/s, done.
+Resolving deltas: 100% (221/221), done.
+kyrian@raspberrypi:~/Desktop/EECS750/hw6 $ cd IsolBench/bench
+kyrian@raspberrypi:~/Desktop/EECS750/hw6/IsolBench/bench $ make latency bandwidth
+gcc -O2 -Wall -g   -c -o latency.o latency.c
+gcc -Wl,--no-as-needed -lrt  latency.o   -o latency
+gcc -O2 -Wall -g   -c -o bandwidth.o bandwidth.c
+gcc -Wl,--no-as-needed -lrt  bandwidth.o   -o bandwidth
+kyrian@raspberrypi:~/Desktop/EECS750/hw6/IsolBench/bench $ sudo cp latency bandwidth /usr/local/bin/
+kyrian@raspberrypi:~/Desktop/EECS750/hw6/IsolBench/bench $ latency -c 0
+assigned to cpu 0
+allocated: wokingsetsize=262144 entries
+initialized.
+duration 3919675 us
+average 149.52 ns | bandwidth 428.03 MB (408.20 MiB)/s
+readsum  3435960729600
+kyrian@raspberrypi:~/Desktop/EECS750/hw6/IsolBench/bench $ for c in 1 2 3; do bandwidth -c $c -t 1000 & done
+[1] 4327
+[2] 4328
+[3] 4329
+kyrian@raspberrypi:~/Desktop/EECS750/hw6/IsolBench/bench $ assigned to cpu 1
+assigned to cpu 2
+assigned to cpu 3
+memsize=16384 KB, type=read, cpuid=1
+stop at 1000
+memsize=16384 KB, type=read, cpuid=3
+stop at 1000
+memsize=16384 KB, type=read, cpuid=2
+stop at 1000
+
+kyrian@raspberrypi:~/Desktop/EECS750/hw6/IsolBench/bench $ latency -c 0; killall -9 bandwidth
+assigned to cpu 0
+allocated: wokingsetsize=262144 entries
+initialized.
+duration 10693644 us
+average 407.93 ns | bandwidth 156.89 MB (149.62 MiB)/s
+readsum  3435960729600
+kyrian@raspberrypi:~/Desktop/EECS750/hw6/IsolBench/bench $ for c in 1 2 3; do bandwidth -a write -c $c -t 1000 & done
+[4] 4360
+[5] 4361
+[6] 4362
+[1]   Killed                  bandwidth -c $c -t 1000
+[2]   Killed                  bandwidth -c $c -t 1000
+[3]   Killed                  bandwidth -c $c -t 1000
+assigned to cpu 1
+kyrian@raspberrypi:~/Desktop/EECS750/hw6/IsolBench/bench $ assigned to cpu 2
+assigned to cpu 3
+memsize=16384 KB, type=write, cpuid=2
+stop at 1000
+memsize=16384 KB, type=write, cpuid=1
+stop at 1000
+memsize=16384 KB, type=write, cpuid=3
+stop at 1000
+
+kyrian@raspberrypi:~/Desktop/EECS750/hw6/IsolBench/bench $ latency -c 0 ; killall -9 bandwidth
+assigned to cpu 0
+allocated: wokingsetsize=262144 entries
+initialized.
+duration 19884295 us
+average 758.53 ns | bandwidth 84.37 MB (80.47 MiB)/s
+readsum  3435960729600
+kyrian@raspberrypi:~/Desktop/EECS750/hw6/IsolBench/bench $ 
+

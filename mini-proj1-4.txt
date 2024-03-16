@@ -1,0 +1,57 @@
+kyrian@raspberrypi:~/Desktop/EECS750/hw6/IsolBench/bench/memguard $ latency -c 0
+assigned to cpu 0
+allocated: wokingsetsize=262144 entries
+initialized.
+duration 4011583 us
+average 153.03 ns | bandwidth 418.22 MB (398.85 MiB)/s
+readsum  3435960729600
+kyrian@raspberrypi:~/Desktop/EECS750/hw6/IsolBench/bench/memguard $ for c in 1 2 3; do bandwidth -c $c -t 1000 & done
+[2] 4847
+[3] 4848
+[4] 4849
+kyrian@raspberrypi:~/Desktop/EECS750/hw6/IsolBench/bench/memguard $ assigned to cpu 2
+assigned to cpu 3
+assigned to cpu 1
+memsize=16384 KB, type=read, cpuid=2
+stop at 1000
+memsize=16384 KB, type=read, cpuid=1
+stop at 1000
+memsize=16384 KB, type=read, cpuid=3
+stop at 1000
+
+kyrian@raspberrypi:~/Desktop/EECS750/hw6/IsolBench/bench/memguard $ latency -c 0 ; killall -9 bandwidth
+assigned to cpu 0
+allocated: wokingsetsize=262144 entries
+initialized.
+duration 4305050 us
+average 164.22 ns | bandwidth 389.71 MB (371.66 MiB)/s
+readsum  3435960729600
+kyrian@raspberrypi:~/Desktop/EECS750/hw6/IsolBench/bench/memguard $ for c in 1 2 3; do bandwidth -a write -c $c -t 1000 & done
+[5] 4860
+[6] 4861
+[7] 4862
+[2]   Killed                  bandwidth -c $c -t 1000
+[3]   Killed                  bandwidth -c $c -t 1000
+[4]   Killed                  bandwidth -c $c -t 1000
+assigned to cpu 2
+kyrian@raspberrypi:~/Desktop/EECS750/hw6/IsolBench/bench/memguard $ assigned to cpu 1
+assigned to cpu 3
+memsize=16384 KB, type=write, cpuid=2
+stop at 1000
+memsize=16384 KB, type=write, cpuid=3
+stop at 1000
+memsize=16384 KB, type=write, cpuid=1
+stop at 1000
+
+kyrian@raspberrypi:~/Desktop/EECS750/hw6/IsolBench/bench/memguard $ latency -c 0 ; killall -9 bandwidth
+assigned to cpu 0
+allocated: wokingsetsize=262144 entries
+initialized.
+duration 5701693 us
+average 217.50 ns | bandwidth 294.25 MB (280.62 MiB)/s
+readsum  3435960729600
+[5]   Killed                  bandwidth -a write -c $c -t 1000
+[6]   Killed                  bandwidth -a write -c $c -t 1000
+[7]-  Killed                  bandwidth -a write -c $c -t 1000
+kyrian@raspberrypi:~/Desktop/EECS750/hw6/IsolBench/bench/memguard $ 
+
